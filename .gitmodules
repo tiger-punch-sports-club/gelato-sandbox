@@ -1,0 +1,4 @@
+[submodule "gelato"]
+	path = gelato
+	url = https://github.com/tiger-punch-sports-club/gelato.git
+	branch = master
