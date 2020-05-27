@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#include "stb_image.h"
+#include <TextureDataLoader.h>
+#include "FileSystem.h"
 
 extern "C" 
 {
@@ -22,29 +23,15 @@ void on_window_resized(GLFWwindow* window, int width, int height)
 
 GelatoTextureId load_texture(const char* path, uint32& width, uint32& height)
 {
-	// load texture
-	FILE* file = fopen(path, "rb");
-	int image_width, image_height, image_channels;
-	unsigned char* data = stbi_load_from_file(file, &image_width, &image_height, &image_channels, 0);
-	fclose(file);
+	SupraHot::Utils::FileSystem file_system;
+	auto file_handle = file_system.open_file("", path, "rb");
+	auto texture_data = SupraHot::Utils::TextureDataLoader::load_texture(file_handle, SupraHot::Utils::TextureFileFormat::STBI);
 
-	/* invert texture on y axis */
-	for (int j = 0; j * 2 < image_height; ++j)
-	{
-		int index1 = j * image_width * image_channels;
-		int index2 = (image_height - 1 - j) * image_width * image_channels;
-		for (int i = image_width * image_channels; i > 0; --i)
-		{
-			unsigned char temp = data[index1];
-			data[index1] = data[index2];
-			data[index2] = temp;
-			++index1;
-			++index2;
-		}
-	}
+	void* data = texture_data._data.at(0).data();
+	uint32 image_width = texture_data._width;
+	uint32 image_height = texture_data._height;
 
 	// create texture
-
 	GelatoTextureDescription desc = {};
 	desc._width = static_cast<uint32>(image_width);
 	desc._height = static_cast<uint32>(image_height);
@@ -57,8 +44,6 @@ GelatoTextureId load_texture(const char* path, uint32& width, uint32& height)
 	desc._mag_filter = GelatoTextureMagFilters._nearest;
 
 	GelatoTextureId texture = gelato_create_texture(desc,static_cast<void*>(data));
-
-	stbi_image_free(data);
 
 	width = static_cast<uint32>(image_width);
 	height = static_cast<uint32>(image_height);
