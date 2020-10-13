@@ -5,3 +5,4 @@
 [submodule "suprahotlib"]
 	path = suprahotlib
 	url = https://PolygonBoutique@bitbucket.org/suprahot/suprahotlib.git
+	branch = master

@@ -4,7 +4,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-
+#include <vector>
 #include <TextureDataLoader.h>
 #include "FileSystem.h"
 
@@ -25,9 +25,10 @@ GelatoTextureId load_texture(const char* path, uint32& width, uint32& height)
 {
 	SupraHot::Utils::FileSystem file_system;
 	auto file_handle = file_system.open_file("", path, "rb");
-	auto texture_data = SupraHot::Utils::TextureDataLoader::load_texture(file_handle, SupraHot::Utils::TextureFileFormat::STBI);
+	SupraHot::Utils::TextureLoadInfo texture_load_info = {SupraHot::Utils::TextureFileFormat::STBI};
+	auto texture_data = SupraHot::Utils::TextureDataLoader::load_texture(file_handle, texture_load_info);
 
-	void* data = texture_data._data.at(0).data();
+	void* data = reinterpret_cast<void*>(texture_data._data.data());
 	uint32 image_width = texture_data._width;
 	uint32 image_height = texture_data._height;
 
